@@ -17,7 +17,7 @@ public class EmailSender {
 
         // SMTP port (Gmail uses port 587 for TLS)
         final String username = "parth.22110808@viit.ac.in";  // Gmail username
-        final String password = "bogqyfgyismvzogq";         // Gmail password or App Password if 2FA is enabled
+        final String password = "";         // Gmail password or App Password if 2FA is enabled bogqyfgyismvzogq
 
         // Set properties for the mail session
         Properties properties = new Properties();
