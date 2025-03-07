@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -18,7 +20,7 @@ public class SecurityConfig {
     // Configure HTTP security with lambda-style configuration
     @Bean
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
-        http.csrf((csrf) -> csrf.disable())  // Disable CSRF for simplicity in this example
+        http.csrf(AbstractHttpConfigurer::disable)  // Disable CSRF for simplicity in this example
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/register").permitAll()  // Allow login and register pages to be accessed by everyone
                         .requestMatchers("/admin/**").hasRole("ADMIN")  // Only admins can access /admin/**
@@ -31,8 +33,7 @@ public class SecurityConfig {
                         .permitAll()  // Allow everyone to access login page
                         .defaultSuccessUrl("/redirectBasedOnRole", true)  // Redirect to the appropriate role-based page on successful login
                 )
-                .logout(logout -> logout
-                        .permitAll());  // Allow everyone to log out
+                .logout(LogoutConfigurer::permitAll);  // Allow everyone to log out
         return http.build();
     }
 
