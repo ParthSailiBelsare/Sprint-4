@@ -18,7 +18,7 @@ public class UserController {
     @GetMapping("/dashboard")
     public String userDashboard(Model model) {
         model.addAttribute("books", bookService.findAll());
-        return "user/user-dashboard";
+        return "user/dashboard";
     }
 
     @PostMapping("/borrow-book")
