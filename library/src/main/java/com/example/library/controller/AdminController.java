@@ -1,12 +1,35 @@
 package com.example.library.controller;
+
+import com.example.library.model.Book;
+import com.example.library.service.InMemoryBookService;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
+@RequestMapping("/admin")
 public class AdminController {
+    private final InMemoryBookService bookService;
 
-    @GetMapping("/admin/manage-books")
-    public String manageBooks() {
-        return "admin/manage-books";  // This refers to src/main/resources/templates/admin/manage-books.html
+    public AdminController(InMemoryBookService bookService) {
+        this.bookService = bookService;
+    }
+
+    @GetMapping("/dashboard")
+    public String adminDashboard(Model model) {
+        model.addAttribute("books", bookService.findAll());
+        return "admin/dashboard";
+    }
+
+    @PostMapping("/add-book")
+    public String addBook(@ModelAttribute Book book) {
+        bookService.save(book);
+        return "redirect:/admin/dashboard";
+    }
+
+    @PostMapping("/remove-book")
+    public String removeBook(@RequestParam String id) {
+        bookService.remove(id);
+        return "redirect:/admin/dashboard";
     }
 }

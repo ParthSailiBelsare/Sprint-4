@@ -22,30 +22,15 @@ public class AuthController {
     public String redirectBasedOnRole(Authentication authentication) {
         for (GrantedAuthority authority : authentication.getAuthorities()) {
             String role = authority.getAuthority();
-            if (role.equals("ROLE_ADMIN")) {
-                return "redirect:/admin/home";
-            } else if (role.equals("ROLE_LIBRARIAN")) {
-                return "redirect:/librarian/home";
-            } else if (role.equals("ROLE_USER")) {
-                return "redirect:/user/home";
+            switch (role) {
+                case "ROLE_ADMIN":
+                    return "redirect:/admin/dashboard";
+                case "ROLE_LIBRARIAN":
+                    return "redirect:/librarian/dashboard";
+                case "ROLE_USER":
+                    return "redirect:/user/dashboard";
             }
         }
-        return "redirect:/login";  // Default to login if no role matched
-    }
-
-
-    @GetMapping("/admin/home")
-    public String adminHome() {
-        return "admin-home";
-    }
-
-    @GetMapping("/librarian/home")
-    public String librarianHome() {
-        return "librarian-home";
-    }
-
-    @GetMapping("/user/home")
-    public String userHome() {
-        return "user-home";
+        return "redirect:/login"; // Default redirect if no role is found
     }
 }

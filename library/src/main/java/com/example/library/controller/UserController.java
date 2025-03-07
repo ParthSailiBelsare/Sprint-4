@@ -1,62 +1,41 @@
 package com.example.library.controller;
 
 import com.example.library.model.Book;
-import com.example.library.model.BorrowHistory;
-import com.example.library.repository.BookRepository;
-import com.example.library.repository.BorrowHistoryRepository;
+import com.example.library.service.InMemoryBookService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 @Controller
 @RequestMapping("/user")
 public class UserController {
-    private final BookRepository bookRepository;
-    private final BorrowHistoryRepository historyRepository;
+    private final InMemoryBookService bookService;
 
-    public UserController(BookRepository bookRepository, BorrowHistoryRepository historyRepository) {
-        this.bookRepository = bookRepository;
-        this.historyRepository = historyRepository;
+    public UserController(InMemoryBookService bookService) {
+        this.bookService = bookService;
     }
 
-    @GetMapping("/home")
-    public String userHome(Model model) {
-        model.addAttribute("books", bookRepository.findAll());
-        return "user-home";
+    @GetMapping("/dashboard")
+    public String userDashboard(Model model) {
+        model.addAttribute("books", bookService.findAll());
+        return "user/user-dashboard";
     }
 
     @PostMapping("/borrow-book")
-    public String borrowBook(@RequestParam String userId, @RequestParam String bookId) {
-        Book book = bookRepository.findById(bookId).orElseThrow();
-        if (book.isAvailable()) {
+    public String borrowBook(@RequestParam String bookId) {
+        Book book = bookService.findById(bookId);
+        if (book != null && book.isAvailable()) {
             book.setAvailable(false);
-            bookRepository.save(book);
-
-            BorrowHistory history = new BorrowHistory();
-            history.setUserId(userId);
-            history.setBookId(bookId);
-            history.setBorrowedAt(LocalDateTime.now());
-            historyRepository.save(history);
         }
-        return "redirect:/user/home";
+        return "redirect:/user/dashboard";
     }
 
     @PostMapping("/return-book")
-    public String returnBook(@RequestParam String userId, @RequestParam String bookId) {
-        BorrowHistory history = historyRepository.findByUserId(userId).stream()
-                .filter(h -> h.getBookId().equals(bookId) && h.getReturnedAt() == null)
-                .findFirst().orElseThrow();
-
-        history.setReturnedAt(LocalDateTime.now());
-        historyRepository.save(history);
-
-        Book book = bookRepository.findById(bookId).orElseThrow();
-        book.setAvailable(true);
-        bookRepository.save(book);
-
-        return "redirect:/user/home";
+    public String returnBook(@RequestParam String bookId) {
+        Book book = bookService.findById(bookId);
+        if (book != null) {
+            book.setAvailable(true);
+        }
+        return "redirect:/user/dashboard";
     }
 }
